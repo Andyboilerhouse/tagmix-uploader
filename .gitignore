@@ -1,0 +1,7 @@
+node_modules/
+uploads/
+db/tracks.json
+.DS_Store
+*.log
+
+

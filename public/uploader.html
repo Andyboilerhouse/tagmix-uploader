@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Track Upload – TagMix Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.4;
+      color: #111827;
+      background: #0b1120;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 24px 24px 28px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #e5e7eb;
+    }
+    .card h1 {
+      font-size: 1.4rem;
+      margin: 0 0 4px;
+    }
+    .card p.subtitle {
+      margin: 0 0 20px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: #e5e7eb;
+    }
+    .field label span.req {
+      color: #f97316;
+      margin-left: 2px;
+    }
+    .field small {
+      display: block;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      outline: none;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3);
+    }
+
+    .dropzone {
+      border-radius: 12px;
+      border: 1px dashed #4b5563;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 60%);
+    }
+    .dropzone.dragover {
+      border-color: #22c55e;
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.18), transparent 60%);
+    }
+    .dropzone span.main {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    .dropzone span.sub {
+      display: block;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    .file-info {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #e5e7eb;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #4b5563;
+      font-size: 0.75rem;
+      color: #e5e7eb;
+    }
+    .chip button {
+      border: none;
+      background: none;
+      color: #9ca3af;
+      cursor: pointer;
+      margin-left: 6px;
+      padding: 0;
+      font-size: 0.8rem;
+    }
+    .featured-input {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .featured-input input {
+      flex: 1;
+    }
+    .featured-input button {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .featured-input button:hover {
+      border-color: #22c55e;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button.submit {
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #14b8a6);
+      color: #020617;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button.submit:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .status {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      min-height: 1.1em;
+    }
+    .status.error {
+      color: #f97316;
+    }
+    .status.success {
+      color: #4ade80;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 18px 16px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Upload your track</h1>
+    <p class="subtitle">
+      Drop in your track so we can recognise it in TagMix clips and credit you properly.
+    </p>
+
+    <form id="uploadForm">
+      <!-- Audio file -->
+      <div class="field">
+        <label>Audio file <span class="req">*</span></label>
+        <div id="dropzone" class="dropzone">
+          <span class="main">Drag &amp; drop your WAV/MP3 here</span>
+          <span class="sub">or click to choose a file</span>
+          <input id="audioInput" type="file" accept="audio/*" style="display:none" />
+        </div>
+        <div id="fileInfo" class="file-info"></div>
+        <small>We recommend WAV, but MP3 is fine.</small>
+      </div>
+
+      <!-- Track title -->
+      <div class="field">
+        <label for="trackTitle">Track title <span class="req">*</span></label>
+        <input id="trackTitle" type="text" required placeholder="e.g. Warehouse Weapon" />
+      </div>
+
+      <!-- Mix / version -->
+      <div class="field">
+        <label for="mixName">Mix / Version <span class="req">*</span></label>
+        <input id="mixName" type="text" value="Original Mix" required />
+        <small>e.g. Original Mix, Extended Mix, Club Mix, Dub, VIP...</small>
+      </div>
+
+      <!-- Primary artist (from profile / query string) -->
+      <div class="field">
+        <label for="primaryArtist">Primary artist <span class="req">*</span></label>
+        <input id="primaryArtist" type="text" required placeholder="Your artist name" />
+        <small>We’ll use this for crediting on clips and reports.</small>
+      </div>
+
+      <!-- Featured artists -->
+      <div class="field">
+        <label>Featured artist(s)</label>
+        <div class="chips" id="featuredChips"></div>
+        <div class="featured-input">
+          <input id="featuredInput" type="text" placeholder="Add a featured artist..." />
+          <button type="button" id="addFeaturedBtn">Add</button>
+        </div>
+        <small>Optional. For “feat. X &amp; Y” credits.</small>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="submit" id="submitBtn">
+          Upload track
+        </button>
+        <div id="status" class="status"></div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // ========= UTIL: prefill primary artist from ?artist= in URL =========
+    (function prefillArtistFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const artist = params.get("artist");
+      if (artist) {
+        document.getElementById("primaryArtist").value = artist;
+      }
+    })();
+
+    // ========= Drag & drop handling =========
+    const dropzone = document.getElementById("dropzone");
+    const audioInput = document.getElementById("audioInput");
+    const fileInfo = document.getElementById("fileInfo");
+    let selectedFile = null;
+
+    function setFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith("audio/")) {
+        fileInfo.textContent = "Please select an audio file.";
+        return;
+      }
+      selectedFile = file;
+      fileInfo.textContent = `Selected: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
+    }
+
+    dropzone.addEventListener("click", () => audioInput.click());
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+    dropzone.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+    });
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      setFile(file);
+    });
+
+    audioInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      setFile(file);
+    });
+
+    // ========= Featured artists chips =========
+    const featuredChipsEl = document.getElementById("featuredChips");
+    const featuredInput = document.getElementById("featuredInput");
+    const addFeaturedBtn = document.getElementById("addFeaturedBtn");
+    let featuredArtists = [];
+
+    function renderFeaturedChips() {
+      featuredChipsEl.innerHTML = "";
+      featuredArtists.forEach((name, index) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = name;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "×";
+        btn.addEventListener("click", () => {
+          featuredArtists.splice(index, 1);
+          renderFeaturedChips();
+        });
+        chip.appendChild(btn);
+        featuredChipsEl.appendChild(chip);
+      });
+    }
+
+    function addFeaturedArtist() {
+      const val = featuredInput.value.trim();
+      if (!val) return;
+      featuredArtists.push(val);
+      featuredInput.value = "";
+      renderFeaturedChips();
+    }
+
+    addFeaturedBtn.addEventListener("click", addFeaturedArtist);
+    featuredInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addFeaturedArtist();
+      }
+    });
+
+    // ========= Form submission =========
+    const form = document.getElementById("uploadForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusEl = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "";
+      statusEl.className = "status";
+
+      const trackTitle = document.getElementById("trackTitle").value.trim();
+      const mixName = document.getElementById("mixName").value.trim();
+      const primaryArtist = document.getElementById("primaryArtist").value.trim();
+
+      if (!selectedFile) {
+        statusEl.textContent = "Please upload an audio file.";
+        statusEl.classList.add("error");
+        return;
+      }
+      if (!trackTitle || !mixName || !primaryArtist) {
+        statusEl.textContent = "Please fill in all required fields.";
+        statusEl.classList.add("error");
+        return;
+      }
+
+      // Build form data
+      const formData = new FormData();
+      formData.append("audio_file", selectedFile);
+      formData.append("track_title", trackTitle);
+      formData.append("mix_name", mixName);
+      formData.append("primary_artist", primaryArtist);
+      formData.append("featured_artists", JSON.stringify(featuredArtists));
+
+      const endpoint = "/api/track-upload";
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Uploading…";
+      statusEl.textContent = "Uploading, please wait…";
+
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error(`Upload failed (${res.status})`);
+        }
+
+        statusEl.textContent = "Track uploaded successfully. Thank you!";
+        statusEl.classList.add("success");
+        // Optional: reset (but keep artist name)
+        selectedFile = null;
+        fileInfo.textContent = "";
+        audioInput.value = "";
+        document.getElementById("trackTitle").value = "";
+        document.getElementById("mixName").value = "Original Mix";
+        featuredArtists = [];
+        renderFeaturedChips();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Something went wrong uploading your track. Please try again.";
+        statusEl.classList.add("error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Upload track";
+      }
+    });
+  </script>
+</body>
+</html>
