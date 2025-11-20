@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const ext = path.extname(file.originalname);
     cb(null, `track-${uniqueSuffix}${ext}`);
   }
@@ -36,6 +36,11 @@ const upload = multer({
 // Middleware
 app.use(express.json());
 app.use(express.static('public'));
+
+// Serve uploader on the home page (for DigitalOcean URL root)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'uploader.html'));
+});
 
 // POST /api/track-upload
 app.post('/api/track-upload', upload.single('audio_file'), (req, res) => {
@@ -137,4 +142,3 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Uploader available at http://localhost:${PORT}/uploader.html`);
 });
-
