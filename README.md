@@ -62,11 +62,63 @@ Uploads a track with metadata.
 
 Returns a JSON array of all uploaded tracks, ordered by upload timestamp (newest first).
 
+## Exporting Tracks
+
+Export all tracks with metadata:
+
+```bash
+npm run export
+```
+
+This creates a timestamped folder in `exports/` containing:
+- All audio files (renamed with metadata)
+- `metadata.json` - Complete metadata in JSON format
+- `metadata.csv` - Spreadsheet-friendly CSV format
+
+## Deployment to DigitalOcean App Platform
+
+### Prerequisites
+1. A GitHub account
+2. A DigitalOcean account
+3. Your code pushed to a GitHub repository
+
+### Steps
+
+1. **Push to GitHub:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin <your-github-repo-url>
+   git push -u origin main
+   ```
+
+2. **Deploy on DigitalOcean:**
+   - Go to [DigitalOcean App Platform](https://cloud.digitalocean.com/apps)
+   - Click "Create App"
+   - Connect your GitHub repository
+   - Select the repository and branch
+   - DigitalOcean will auto-detect Node.js
+   - Verify settings:
+     - **Build Command:** `npm install`
+     - **Run Command:** `npm start`
+     - **HTTP Port:** `3000` (or leave default)
+   - Click "Create Resources"
+
+3. **Important Notes:**
+   - The app uses `process.env.PORT` (automatically set by DigitalOcean)
+   - Uploaded files are stored in the `uploads/` directory (ephemeral - will be lost on restart)
+   - For production, consider using DigitalOcean Spaces for persistent file storage
+   - The database (`db/tracks.json`) is also ephemeral
+
 ## Project Structure
 
 - `server.js` - Main Express server
 - `public/uploader.html` - Frontend upload form
 - `uploads/` - Directory where uploaded audio files are stored
-- `tracks.db` - SQLite database containing track metadata
+- `db/tracks.json` - JSON database containing track metadata
+- `export-tracks.js` - Script to export tracks with metadata
+
 
 

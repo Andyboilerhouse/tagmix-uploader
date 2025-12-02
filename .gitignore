@@ -1,6 +1,7 @@
 node_modules/
 uploads/
 db/tracks.json
+exports/
 .DS_Store
 *.log
 
